@@ -5,10 +5,16 @@
   "main": "node-zerox/dist/index.js",
   "scripts": {
     "build": "tsc -p node-zerox/tsconfig.json",
+    "prepare": "npm run build",
     "postinstall": "node node-zerox/scripts/install-dependencies.js",
     "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "files": [
+    "node-zerox/dist",
+    "node-zerox/scripts",
+    "node-zerox/src"
+  ],
   "author": "tylermaran",
   "license": "MIT",
   "dependencies": {
