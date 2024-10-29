@@ -1,7 +1,10 @@
 const { exec } = require("child_process");
 const { promisify } = require("util");
-
+console.log('FORK OF ZEROX - WIP');
+console.log('Installing dependencies...');
 // Immediately exit in Vercel environment
+console.log("process.env.VERCEL: ", process.env.VERCEL);
+
 if (process.env.VERCEL === '1') {
   console.log('Detected Vercel environment, skipping dependency installation script...');
   process.exit(0);
