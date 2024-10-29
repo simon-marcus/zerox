@@ -1,9 +1,13 @@
 const { exec } = require("child_process");
 const { promisify } = require("util");
 
-const execPromise = promisify(exec);
+// Immediately exit in Vercel environment
+if (process.env.VERCEL === '1') {
+  console.log('Detected Vercel environment, skipping dependency installation script...');
+  process.exit(0);
+}
 
-const isVercelEnv = process.env.VERCEL === '1';
+const execPromise = promisify(exec);
 
 const installPackage = async (command, packageName) => {
   try {
@@ -17,22 +21,13 @@ const installPackage = async (command, packageName) => {
   }
 };
 
-const detectPackageManager = async () => {
+const checkAndInstall = async () => {
   try {
-    // Check for dnf (Vercel)
-    await execPromise("which dnf");
-    return {
-      type: "dnf",
-      commands: {
-        ghostscript: "dnf install -y ghostscript",
-        graphicsmagick: "dnf install -y GraphicsMagick"
-      }
-    };
-  } catch {
+    // Check for package manager
+    let packageManager;
     try {
-      // Check for apt-get (Debian/Ubuntu)
       await execPromise("which apt-get");
-      return {
+      packageManager = {
         type: "apt-get",
         commands: {
           ghostscript: "apt-get update && apt-get install -y ghostscript",
@@ -42,9 +37,8 @@ const detectPackageManager = async () => {
       };
     } catch {
       try {
-        // Check for brew (macOS)
         await execPromise("which brew");
-        return {
+        packageManager = {
           type: "brew",
           commands: {
             ghostscript: "brew install ghostscript",
@@ -62,15 +56,10 @@ const detectPackageManager = async () => {
           );
           process.exit(0);
         }
-        throw new Error("No supported package manager found (requires dnf, apt-get, or brew)");
+        throw new Error("No supported package manager found (requires apt-get or brew)");
       }
     }
-  }
-};
 
-const checkAndInstall = async () => {
-  try {
-    const packageManager = await detectPackageManager();
     console.log(`Using package manager: ${packageManager.type}`);
 
     // Check and install Ghostscript
@@ -91,26 +80,17 @@ const checkAndInstall = async () => {
       await installPackage(packageManager.commands.graphicsmagick, "GraphicsMagick");
     }
 
-    // Only try to install LibreOffice if we're not in Vercel and the command exists
-    if (!isVercelEnv && packageManager.commands.libreoffice) {
-      try {
-        await execPromise("soffice --version");
-        console.log("LibreOffice is already installed");
-      } catch {
-        console.log("Installing LibreOffice...");
-        await installPackage(packageManager.commands.libreoffice, "LibreOffice");
-      }
-    } else {
-      console.log("Skipping LibreOffice installation (not available or not required in this environment)");
+    // Check and install LibreOffice
+    try {
+      await execPromise("soffice --version");
+      console.log("LibreOffice is already installed");
+    } catch {
+      console.log("Installing LibreOffice...");
+      await installPackage(packageManager.commands.libreoffice, "LibreOffice");
     }
 
-    console.log("All required dependencies installed successfully!");
+    console.log("All dependencies installed successfully!");
   } catch (err) {
-    // If we're in Vercel and the error is about LibreOffice, ignore it
-    if (isVercelEnv && err.message.includes('libreoffice')) {
-      console.log("Skipping LibreOffice installation in Vercel environment");
-      process.exit(0);
-    }
     console.error(`Error during installation: ${err.message}`);
     process.exit(1);
   }
