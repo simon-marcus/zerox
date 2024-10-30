@@ -298,15 +298,21 @@ var convertPdfToImages = function (_a) { return __awaiter(void 0, [_a], void 0, 
         switch (_d.label) {
             case 0:
                 options = __assign({ density: 300, format: "png", height: 1056, preserveAspectRatio: true, saveFilename: path_1.default.basename(localPath, path_1.default.extname(localPath)), savePath: tempDir, imageMagick: true }, pdf2picOptions);
-                storeAsImage = (0, pdf2pic_1.fromPath)(localPath, options);
+                // Add debug logging
+                console.log('PDF conversion options:', options);
+                // Force imageMagick even if overridden
+                options.imageMagick = true;
                 _d.label = 1;
             case 1:
                 _d.trys.push([1, 4, , 5]);
+                storeAsImage = (0, pdf2pic_1.fromPath)(localPath, options);
+                console.log('PDF2Pic initialized with options');
                 return [4 /*yield*/, storeAsImage.bulk(pagesToConvertAsImages, {
                         responseType: "buffer",
                     })];
             case 2:
                 convertResults = _d.sent();
+                console.log('Bulk conversion completed');
                 return [4 /*yield*/, Promise.all(convertResults.map(function (result) { return __awaiter(void 0, void 0, void 0, function () {
                         var paddedPageNumber, correctedBuffer, imagePath;
                         return __generator(this, function (_a) {
@@ -325,6 +331,7 @@ var convertPdfToImages = function (_a) { return __awaiter(void 0, [_a], void 0, 
                                     return [4 /*yield*/, fs_extra_1.default.writeFile(imagePath, correctedBuffer)];
                                 case 2:
                                     _a.sent();
+                                    console.log("Saved page ".concat(result.page, " to ").concat(imagePath));
                                     return [2 /*return*/];
                             }
                         });
@@ -335,6 +342,7 @@ var convertPdfToImages = function (_a) { return __awaiter(void 0, [_a], void 0, 
             case 4:
                 err_1 = _d.sent();
                 console.error("Error during PDF conversion:", err_1);
+                console.error("Error details:", err_1 instanceof Error ? err_1.stack : String(err_1));
                 throw err_1;
             case 5: return [2 /*return*/];
         }

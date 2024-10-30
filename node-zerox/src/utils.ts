@@ -210,7 +210,7 @@ export const convertPdfToImages = async ({
   localPath,
   pagesToConvertAsImages,
   tempDir,
-  pdf2picOptions = {}, 
+  pdf2picOptions = {},
 }: {
   localPath: string;
   pagesToConvertAsImages: number | number[];
@@ -224,15 +224,25 @@ export const convertPdfToImages = async ({
     preserveAspectRatio: true,
     saveFilename: path.basename(localPath, path.extname(localPath)),
     savePath: tempDir,
-    imageMagick: true, // Force ImageMagick
-    ...pdf2picOptions, // Merge in any custom options
+    imageMagick: true, // Force ImageMagick by default
+    ...pdf2picOptions,
   };
-  const storeAsImage = fromPath(localPath, options);
 
+  // Add debug logging
+  console.log('PDF conversion options:', options);
+  
+  // Force imageMagick even if overridden
+  options.imageMagick = true;
+  
   try {
+    const storeAsImage = fromPath(localPath, options);
+    console.log('PDF2Pic initialized with options');
+
     const convertResults = await storeAsImage.bulk(pagesToConvertAsImages, {
       responseType: "buffer",
     });
+    console.log('Bulk conversion completed');
+
     await Promise.all(
       convertResults.map(async (result) => {
         if (!result || !result.buffer) {
@@ -249,11 +259,13 @@ export const convertPdfToImages = async ({
           `${options.saveFilename}_page_${paddedPageNumber}.png`
         );
         await fs.writeFile(imagePath, correctedBuffer);
+        console.log(`Saved page ${result.page} to ${imagePath}`);
       })
     );
     return convertResults;
   } catch (err) {
     console.error("Error during PDF conversion:", err);
+    console.error("Error details:", err instanceof Error ? err.stack : String(err));
     throw err;
   }
 };
