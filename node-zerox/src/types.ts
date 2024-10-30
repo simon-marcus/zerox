@@ -9,6 +9,7 @@ export interface ZeroxArgs {
   outputDir?: string;
   pagesToConvertAsImages?: number | number[];
   tempDir?: string;
+  pdf2picOptions?: any;
 }
 
 export enum ModelOptions {

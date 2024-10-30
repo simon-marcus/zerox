@@ -210,10 +210,12 @@ export const convertPdfToImages = async ({
   localPath,
   pagesToConvertAsImages,
   tempDir,
+  pdf2picOptions = {}, 
 }: {
   localPath: string;
   pagesToConvertAsImages: number | number[];
   tempDir: string;
+  pdf2picOptions?: any;
 }) => {
   const options = {
     density: 300,
@@ -222,6 +224,8 @@ export const convertPdfToImages = async ({
     preserveAspectRatio: true,
     saveFilename: path.basename(localPath, path.extname(localPath)),
     savePath: tempDir,
+    imageMagick: true, // Force ImageMagick
+    ...pdf2picOptions, // Merge in any custom options
   };
   const storeAsImage = fromPath(localPath, options);
 
