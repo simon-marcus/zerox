@@ -298,6 +298,7 @@ var convertPdfToImages = function (_a) { return __awaiter(void 0, [_a], void 0, 
         switch (_d.label) {
             case 0:
                 options = __assign({ density: 300, format: "png", height: 1056, preserveAspectRatio: true, saveFilename: path_1.default.basename(localPath, path_1.default.extname(localPath)), savePath: tempDir }, pdf2picOptions);
+                console.log("convertPdfToImages:");
                 console.log('PDF conversion options:', options);
                 _d.label = 1;
             case 1:

@@ -1,6 +1,5 @@
 import { convert } from "libreoffice-convert";
 import { convertPDFToImages } from './pdf2pic-wrapper';
-import { fromPath } from "pdf2pic";
 import { LLMParams } from "./types";
 import { pipeline } from "stream/promises";
 import { promisify } from "util";
@@ -207,6 +206,7 @@ const correctImageOrientation = async (buffer: Buffer): Promise<Buffer> => {
 };
 
 // Convert each page to a png, correct orientation, and save that image to tmp
+
 export const convertPdfToImages = async ({
   localPath,
   pagesToConvertAsImages,
@@ -227,7 +227,7 @@ export const convertPdfToImages = async ({
     savePath: tempDir,
     ...pdf2picOptions,
   };
-
+  console.log("convertPdfToImages:");
   console.log('PDF conversion options:', options);
 
   try {
