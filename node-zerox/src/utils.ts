@@ -1,4 +1,5 @@
 import { convert } from "libreoffice-convert";
+import { convertPDFToImages } from './pdf2pic-wrapper';
 import { fromPath } from "pdf2pic";
 import { LLMParams } from "./types";
 import { pipeline } from "stream/promises";
@@ -224,25 +225,14 @@ export const convertPdfToImages = async ({
     preserveAspectRatio: true,
     saveFilename: path.basename(localPath, path.extname(localPath)),
     savePath: tempDir,
-    imageMagick: true, // Force ImageMagick by default
     ...pdf2picOptions,
   };
 
-  // Add debug logging
   console.log('PDF conversion options:', options);
-  
-  // Force imageMagick even if overridden
-  options.imageMagick = true;
-  
+
   try {
-    const storeAsImage = fromPath(localPath, options);
-    console.log('PDF2Pic initialized with options');
-
-    const convertResults = await storeAsImage.bulk(pagesToConvertAsImages, {
-      responseType: "buffer",
-    });
-    console.log('Bulk conversion completed');
-
+    const convertResults = await convertPDFToImages(localPath, options, pagesToConvertAsImages);
+    
     await Promise.all(
       convertResults.map(async (result) => {
         if (!result || !result.buffer) {

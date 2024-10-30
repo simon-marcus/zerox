@@ -19,7 +19,10 @@ export declare const convertPdfToImages: ({ localPath, pagesToConvertAsImages, t
     pagesToConvertAsImages: number | number[];
     tempDir: string;
     pdf2picOptions?: any;
-}) => Promise<import("pdf2pic/dist/types/convertResponse").BufferResponse[]>;
+}) => Promise<{
+    buffer: Buffer;
+    page: number;
+}[]>;
 export declare const convertFileToPdf: ({ extension, localPath, tempDir, }: {
     extension: string;
     localPath: string;

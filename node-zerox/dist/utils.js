@@ -75,7 +75,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.convertKeysToSnakeCase = exports.convertFileToPdf = exports.convertPdfToImages = exports.getTextFromImage = exports.downloadFile = exports.isValidUrl = exports.isString = exports.formatMarkdown = exports.encodeImageToBase64 = exports.validateLLMParams = void 0;
 var libreoffice_convert_1 = require("libreoffice-convert");
-var pdf2pic_1 = require("pdf2pic");
+var pdf2pic_wrapper_1 = require("./pdf2pic-wrapper");
 var promises_1 = require("stream/promises");
 var util_1 = require("util");
 var Tesseract = __importStar(require("tesseract.js"));
@@ -292,27 +292,19 @@ var correctImageOrientation = function (buffer) { return __awaiter(void 0, void 
 }); };
 // Convert each page to a png, correct orientation, and save that image to tmp
 var convertPdfToImages = function (_a) { return __awaiter(void 0, [_a], void 0, function (_b) {
-    var options, storeAsImage, convertResults, err_1;
+    var options, convertResults, err_1;
     var localPath = _b.localPath, pagesToConvertAsImages = _b.pagesToConvertAsImages, tempDir = _b.tempDir, _c = _b.pdf2picOptions, pdf2picOptions = _c === void 0 ? {} : _c;
     return __generator(this, function (_d) {
         switch (_d.label) {
             case 0:
-                options = __assign({ density: 300, format: "png", height: 1056, preserveAspectRatio: true, saveFilename: path_1.default.basename(localPath, path_1.default.extname(localPath)), savePath: tempDir, imageMagick: true }, pdf2picOptions);
-                // Add debug logging
+                options = __assign({ density: 300, format: "png", height: 1056, preserveAspectRatio: true, saveFilename: path_1.default.basename(localPath, path_1.default.extname(localPath)), savePath: tempDir }, pdf2picOptions);
                 console.log('PDF conversion options:', options);
-                // Force imageMagick even if overridden
-                options.imageMagick = true;
                 _d.label = 1;
             case 1:
                 _d.trys.push([1, 4, , 5]);
-                storeAsImage = (0, pdf2pic_1.fromPath)(localPath, options);
-                console.log('PDF2Pic initialized with options');
-                return [4 /*yield*/, storeAsImage.bulk(pagesToConvertAsImages, {
-                        responseType: "buffer",
-                    })];
+                return [4 /*yield*/, (0, pdf2pic_wrapper_1.convertPDFToImages)(localPath, options, pagesToConvertAsImages)];
             case 2:
                 convertResults = _d.sent();
-                console.log('Bulk conversion completed');
                 return [4 /*yield*/, Promise.all(convertResults.map(function (result) { return __awaiter(void 0, void 0, void 0, function () {
                         var paddedPageNumber, correctedBuffer, imagePath;
                         return __generator(this, function (_a) {
